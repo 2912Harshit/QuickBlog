@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import toast from 'react-hot-toast';
 import {parse} from 'marked';
+import mdToQuillDelta from 'markdown-to-quill-delta';
 
 const AddBlog = () => {
 
@@ -61,7 +62,10 @@ const AddBlog = () => {
       setLoading(true);
       const {data}=await axios.post('/api/blog/generate',{prompt:title})
       if(data.success){
-        quillRef.current.root.innerHTML=parse(data.content);
+        const delta=mdToQuillDelta(data.content);
+        // console.log(JSON.stringify(delta, null, 2));
+        quillRef.current.setContents(delta);
+        // quillRef.current.root.innerHTML=parse(data.content);
       }else toast.error(data.message);
     } catch (error) {
       toast.error(error.message)

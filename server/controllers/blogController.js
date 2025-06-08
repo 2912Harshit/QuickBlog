@@ -107,8 +107,9 @@ export const getBlogComments=async(req,res)=>{
 export const generateContent=async(req,res)=>{
     try {
         const {prompt}=req.body;
-        const content= await main(prompt + '  Generate a well professional written articulated blog carrying the weight and emption of the title and return prompt such that i can use it as react-quill');
+        const content = await main(`Write a simple and conversational blog post based on the title: '${prompt}'. (use - to write bullet points instead of *)(use simple formatting )`);
         res.json({success:true,content});
+        // console.log(content)
     } catch (error) {
         res.json({success:false,message:error.message});
     }
