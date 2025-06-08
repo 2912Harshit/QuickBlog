@@ -4,6 +4,9 @@ import { assets, blog_data, comments_data } from '../assets/assets';
 import Navbar from '../components/Navbar';
 import Moment from 'moment';
 import Footer from '../components/Footer';
+import Loader from '../components/Loader';
+import { useAppContext } from '../context/AppContext';
+import toast from 'react-hot-toast';
 
 const Blog = () => {
     const {id}=useParams();
@@ -11,15 +14,43 @@ const Blog = () => {
     const [comments,setComments]=useState([]);
     const [name,setName]=useState('');
     const [content,setContent]=useState('');
+    const {axios}=useAppContext();
     const fetchBlogData=async()=>{
-        const data=blog_data.find(item=>item._id===id);
-        setData(data);
+        try {
+            const {data}=await axios.get(`/api/blog/${id}`)
+            if(data.success){
+                setData(data.blog);
+            }else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
     const fetchComments=async()=>{
-        setComments(comments_data);
+        try {
+            const {data}=await axios.get(`/api/blog/comments/${id}`);
+            if(data.success){
+                setComments(data.comments);
+            }else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
     const addComment=async(e)=>{
         e.preventDefault();
+        try {
+            const {data}=await axios.post('/api/blog/add-comment',{blog:id,name:name,content:content});
+            if(data.success){
+                toast.success(data.message);
+                setName('');
+                setContent('');
+            }else toast.error(data.message);
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
     useEffect(()=>{
         fetchBlogData();
@@ -67,15 +98,15 @@ const Blog = () => {
             <div className='my-24 max-w-3xl mx-auto'>
                 <p className='font-semibold my-4'>Share this article on social media</p>
                 <div className='flex'>
-                    <img src={assets.facebook_icon} width={50} alt="" />
-                    <img src={assets.twitter_icon} width={50} alt="" />
-                    <img src={assets.googleplus_icon} width={50} alt="" />
+                    <a href=""><img src={assets.facebook_icon} width={50} alt="" /></a>
+                    <a href=""><img src={assets.twitter_icon} width={50} alt="" /></a>
+                    <a href=""><img src={assets.googleplus_icon} width={50} alt="" /></a>
                 </div>
             </div>
         </div>
         <Footer></Footer>
     </div>
-  ): <div>Loading...</div>
+  ): <div><Loader></Loader></div>
 }
 
 export default Blog
